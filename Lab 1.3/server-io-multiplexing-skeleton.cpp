@@ -157,11 +157,10 @@ int main(int argc, char *argv[])
 	// TODO: declare a data structure that will keep track of one ConnectionData
 	// struct for each open connection. E.g. you can use a vector (see Appendix E
 	// on the lab manual).
-
-	// loop forever
-
 	std::vector<ConnectionData> connections;
 
+
+	// loop forever
 	while (1)
 	{
 
@@ -170,10 +169,10 @@ int main(int argc, char *argv[])
 		FD_ZERO(&readfds);
 		FD_ZERO(&writefds);
 
-		FD_SET(listenfd, &readfds);
 
 		// TODO: add listenfd to readfds.
 		// NOTE: check for FD_SET() in the man page of select().
+		FD_SET(listenfd, &readfds);
 
 		// TODO: loop through all open connections (which you have stored in data structre, e.g. a vector)
 		// and add them in readfds or writefds.
@@ -198,8 +197,7 @@ int main(int argc, char *argv[])
 		// NOTE 1: we only need one call to select() throughout our program.
 		// NOTE 2: pay attention to the first arguement of select. It should be the
 		// maximum VALUE of all tracked file descriptors + 1.
-		int ret = select(fdmax, &readfds, &writefds, 0, 0);
-		fprintf(stderr, "Passed Select \n --------------- \n");
+		int ret = select(fdmax + 1, &readfds, &writefds, 0, 0);
 
 
 		if (-1 == ret)
@@ -261,7 +259,6 @@ int main(int argc, char *argv[])
 		{
 			if (FD_ISSET(connections[i].sock, &readfds))
 			{
-				fprintf(stderr, "Recv proccessed\n");
 				if (!process_client_recv(connections[i]))
 				{
 					close(connections[i].sock);
