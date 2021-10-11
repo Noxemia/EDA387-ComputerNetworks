@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
 			{
 				FD_SET(connections[i].sock, &readfds);
 			}
-			else
+			else if(connections[i].state == eConnStateSending)
 			{
 				FD_SET(connections[i].sock, &writefds);
 			}
@@ -255,6 +255,7 @@ int main(int argc, char *argv[])
 		// 2) If it is in the readfds set, receive data from that socket, using process_client_recv().
 		// 3) If it is in the writefds set, write send to that socket, using process_client_send().
 		// 4) Close and remove sockets if their connection was terminated.
+
 		for (size_t i = 0; i < connections.size(); ++i)
 		{
 			if (FD_ISSET(connections[i].sock, &readfds))
@@ -262,6 +263,7 @@ int main(int argc, char *argv[])
 				if (!process_client_recv(connections[i]))
 				{
 					close(connections[i].sock);
+					connections[i].sock = -1;
 				};
 			}
 			else if (FD_ISSET(connections[i].sock, &writefds))
@@ -269,6 +271,7 @@ int main(int argc, char *argv[])
 				if (!process_client_send(connections[i]))
 				{
 					close(connections[i].sock);
+					connections[i].sock = -1;
 				};
 			}
 		}
@@ -285,6 +288,7 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
 
 //--    process_client_recv()   ///{{{1///////////////////////////////////////
 static bool process_client_recv(ConnectionData &cd)
